@@ -176,12 +176,40 @@
       max-width: 100px;
       height: auto;
     }
+    
+    /* Loading spinner */
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ccc;
+      border-top-color: #f06292;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .select-loading {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="app-title">
-      <div class="emoji">🍜🍦🥖</div>
+      <div class="emoji">🍜 🍦 🥖</div>
       <h1>Đồ Ăn Vặt Uông Bí</h1>
     </div>
     
@@ -270,6 +298,10 @@
     let selectedHoTen = '';
     let danhSachHS = [];
     
+    // ✅ CACHE để không tải lại
+    let cacheDanhSachLop = null;
+    let cacheHocSinhTheoLop = {};
+    
     // Chọn loại người dùng
     function chonLoai(loai, element) {
       loaiNguoiDung = loai;
@@ -291,26 +323,43 @@
       }
     }
     
-    // Load danh sách lớp từ API
+    // Load danh sách lớp từ API (có cache)
     async function loadDanhSachLop() {
       const select = document.getElementById('selectLop');
-      select.innerHTML = '<option value="">Đang tải...</option>';
+      
+      // ✅ Nếu đã có cache thì dùng luôn
+      if (cacheDanhSachLop) {
+        renderDanhSachLop(cacheDanhSachLop);
+        return;
+      }
+      
+      select.innerHTML = '<option value=""><span class="loading"></span> Đang tải...</option>';
+      select.classList.add('select-loading');
       
       try {
         const response = await fetch(API_URL + '?action=getListLop');
         const data = await response.json();
         
-        select.innerHTML = '<option value="">-- Chọn lớp --</option>';
-        data.forEach(function(lop) {
-          select.innerHTML += '<option value="' + lop + '">' + lop + '</option>';
-        });
+        // ✅ Lưu cache
+        cacheDanhSachLop = data;
+        renderDanhSachLop(data);
       } catch (error) {
         showMessage('Lỗi tải danh sách lớp: ' + error, 'error');
         select.innerHTML = '<option value="">-- Lỗi tải dữ liệu --</option>';
+        select.classList.remove('select-loading');
       }
     }
     
-    // Load học sinh theo lớp
+    function renderDanhSachLop(data) {
+      const select = document.getElementById('selectLop');
+      select.classList.remove('select-loading');
+      select.innerHTML = '<option value="">-- Chọn lớp --</option>';
+      data.forEach(function(lop) {
+        select.innerHTML += '<option value="' + lop + '">' + lop + '</option>';
+      });
+    }
+    
+    // Load học sinh theo lớp (có cache)
     async function loadHocSinh() {
       const lop = document.getElementById('selectLop').value;
       const selectTen = document.getElementById('selectTen');
@@ -322,21 +371,39 @@
       }
       
       selectedLop = lop;
-      selectTen.innerHTML = '<option value="">Đang tải...</option>';
+      
+      // ✅ Nếu đã có cache thì dùng luôn
+      if (cacheHocSinhTheoLop[lop]) {
+        renderDanhSachHS(cacheHocSinhTheoLop[lop]);
+        return;
+      }
+      
+      selectTen.innerHTML = '<option value="">⏳ Đang tải...</option>';
+      selectTen.classList.add('select-loading');
       
       try {
         const response = await fetch(API_URL + '?action=getHocSinhTheoLop&lop=' + encodeURIComponent(lop));
         const data = await response.json();
         
-        danhSachHS = data;
-        selectTen.innerHTML = '<option value="">-- Chọn tên --</option>';
-        data.forEach(function(hs, index) {
-          selectTen.innerHTML += '<option value="' + index + '">' + hs.hoTen + '</option>';
-        });
-        selectTen.innerHTML += '<option value="khongco">❌ Không có tên tôi</option>';
+        // ✅ Lưu cache
+        cacheHocSinhTheoLop[lop] = data;
+        renderDanhSachHS(data);
       } catch (error) {
         showMessage('Lỗi tải danh sách học sinh: ' + error, 'error');
+        selectTen.classList.remove('select-loading');
       }
+    }
+    
+    function renderDanhSachHS(data) {
+      const selectTen = document.getElementById('selectTen');
+      selectTen.classList.remove('select-loading');
+      
+      danhSachHS = data;
+      selectTen.innerHTML = '<option value="">-- Chọn tên --</option>';
+      data.forEach(function(hs, index) {
+        selectTen.innerHTML += '<option value="' + index + '">' + hs.hoTen + '</option>';
+      });
+      selectTen.innerHTML += '<option value="khongco">❌ Không có tên tôi</option>';
     }
     
     // Chọn tên học sinh
@@ -416,7 +483,7 @@
       
       const btn = document.querySelector('.btn');
       btn.disabled = true;
-      btn.textContent = 'Đang gửi...';
+      btn.innerHTML = '<span class="loading"></span> Đang gửi...';
       
       try {
         const response = await fetch(API_URL, {
@@ -457,6 +524,14 @@
     function hideMessage() {
       document.getElementById('message').classList.add('hidden');
     }
+    
+    // ✅ Preload danh sách lớp khi trang mở
+    window.addEventListener('load', function() {
+      fetch(API_URL + '?action=getListLop')
+        .then(res => res.json())
+        .then(data => { cacheDanhSachLop = data; })
+        .catch(() => {});
+    });
   </script>
 </body>
 </html>
