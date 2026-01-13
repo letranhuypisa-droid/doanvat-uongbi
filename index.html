@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đồ Ăn Vặt Uông Bí - PISA</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #3a4a9f;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    
+    .logo {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    
+    .logo img {
+      max-width: 120px;
+      height: auto;
+    }
+    
+    .app-title {
+      background: linear-gradient(135deg, #3a4a9f 0%, #2d3a7a 100%);
+      color: white;
+      text-align: center;
+      padding: 15px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+    }
+    
+    .app-title h1 {
+      color: white;
+      margin: 0;
+      font-size: 22px;
+    }
+    
+    .app-title .emoji {
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #3a4a9f;
+    }
+    
+    select, input[type="text"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    
+    select:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: #f06292;
+    }
+    
+    .radio-group {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .radio-option {
+      flex: 1;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: #3a4a9f;
+      font-weight: 600;
+    }
+    
+    .radio-option:hover {
+      border-color: #f06292;
+    }
+    
+    .radio-option.selected {
+      border-color: #f06292;
+      background: #f06292;
+      color: white;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #f06292 0%, #e91e63 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(240, 98, 146, 0.4);
+    }
+    
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .message {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 600;
+    }
+    
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+    
+    .footer-text {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .pisa-badge {
+      display: inline-block;
+      background: #3a4a9f;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="app-title">
+      <div class="emoji">🍜🧋🍿</div>
+      <h1>Đồ Ăn Vặt Uông Bí</h1>
+    </div>
+    
+    <div id="message" class="message hidden"></div>
+    
+    <!-- Bước 1: Chọn loại người dùng -->
+    <div id="step1">
+      <label>Bạn là:</label>
+      <div class="radio-group">
+        <div class="radio-option" onclick="chonLoai('hocsinh', this)">
+          🎒 Học sinh
+        </div>
+        <div class="radio-option" onclick="chonLoai('giaovien', this)">
+          👨‍🏫 GV/Nhân viên
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bước 2: Form học sinh -->
+    <div id="formHocSinh" class="hidden">
+      <div class="form-group">
+        <label>Chọn lớp:</label>
+        <select id="selectLop" onchange="loadHocSinh()">
+          <option value="">-- Chọn lớp --</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Chọn tên:</label>
+        <select id="selectTen" onchange="chonTen()">
+          <option value="">-- Chọn lớp trước --</option>
+        </select>
+      </div>
+      
+      <div id="nhapTenTuDo" class="form-group hidden">
+        <label>Nhập tên của bạn:</label>
+        <input type="text" id="inputTenHS" placeholder="Nhập họ tên...">
+      </div>
+    </div>
+    
+    <!-- Bước 2: Form giáo viên/nhân viên -->
+    <div id="formGiaoVien" class="hidden">
+      <div class="form-group">
+        <label>Nhập tên của bạn:</label>
+        <input type="text" id="inputTenGV" placeholder="Nhập họ tên...">
+      </div>
+    </div>
+    
+    <!-- Bước 3: Chọn món -->
+    <div id="formMon" class="hidden">
+      <div class="form-group">
+        <label>Tên món:</label>
+        <input type="text" id="inputMon" placeholder="VD: Trà sữa, Bánh mì...">
+      </div>
+      
+      <div class="form-group">
+        <label>Số lượng:</label>
+        <select id="selectSoLuong">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+      
+      <button class="btn" onclick="datHang()">🛒 Đặt hàng</button>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-text">Sản phẩm của Tổ AI & Tech</div>
+      <div class="pisa-badge">PISA EDU GROUP</div>
+    </div>
+  </div>
+
+  <script>
+    // ✅ URL API CỦA BẠN (ĐÃ THAY SẴN)
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwWB4ssa_L5oh7ibBuPnEk6X6FcmzfhKHX0FFOdwu64e5wAaRmL2lCKx6LaUh4vMY7K/exec';
+    
+    let loaiNguoiDung = '';
+    let selectedLop = '';
+    let selectedMaHV = '';
+    let selectedHoTen = '';
+    let danhSachHS = [];
+    
+    // Chọn loại người dùng
+    function chonLoai(loai, element) {
+      loaiNguoiDung = loai;
+      
+      document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
+      element.classList.add('selected');
+      
+      hideMessage();
+      
+      if (loai === 'hocsinh') {
+        document.getElementById('formHocSinh').classList.remove('hidden');
+        document.getElementById('formGiaoVien').classList.add('hidden');
+        document.getElementById('formMon').classList.add('hidden');
+        loadDanhSachLop();
+      } else {
+        document.getElementById('formHocSinh').classList.add('hidden');
+        document.getElementById('formGiaoVien').classList.remove('hidden');
+        document.getElementById('formMon').classList.remove('hidden');
+      }
+    }
+    
+    // Load danh sách lớp từ API
+    async function loadDanhSachLop() {
+      const select = document.getElementById('selectLop');
+      select.innerHTML = '<option value="">Đang tải...</option>';
+      
+      try {
+        const response = await fetch(API_URL + '?action=getListLop');
+        const data = await response.json();
+        
+        select.innerHTML = '<option value="">-- Chọn lớp --</option>';
+        data.forEach(function(lop) {
+          select.innerHTML += '<option value="' + lop + '">' + lop + '</option>';
+        });
+      } catch (error) {
+        showMessage('Lỗi tải danh sách lớp: ' + error, 'error');
+        select.innerHTML = '<option value="">-- Lỗi tải dữ liệu --</option>';
+      }
+    }
+    
+    // Load học sinh theo lớp
+    async function loadHocSinh() {
+      const lop = document.getElementById('selectLop').value;
+      const selectTen = document.getElementById('selectTen');
+      
+      if (!lop) {
+        selectTen.innerHTML = '<option value="">-- Chọn lớp trước --</option>';
+        document.getElementById('formMon').classList.add('hidden');
+        return;
+      }
+      
+      selectedLop = lop;
+      selectTen.innerHTML = '<option value="">Đang tải...</option>';
+      
+      try {
+        const response = await fetch(API_URL + '?action=getHocSinhTheoLop&lop=' + encodeURIComponent(lop));
+        const data = await response.json();
+        
+        danhSachHS = data;
+        selectTen.innerHTML = '<option value="">-- Chọn tên --</option>';
+        data.forEach(function(hs, index) {
+          selectTen.innerHTML += '<option value="' + index + '">' + hs.hoTen + '</option>';
+        });
+        selectTen.innerHTML += '<option value="khongco">❌ Không có tên tôi</option>';
+      } catch (error) {
+        showMessage('Lỗi tải danh sách học sinh: ' + error, 'error');
+      }
+    }
+    
+    // Chọn tên học sinh
+    function chonTen() {
+      const value = document.getElementById('selectTen').value;
+      const nhapTenDiv = document.getElementById('nhapTenTuDo');
+      
+      if (value === '') {
+        document.getElementById('formMon').classList.add('hidden');
+        nhapTenDiv.classList.add('hidden');
+        return;
+      }
+      
+      if (value === 'khongco') {
+        nhapTenDiv.classList.remove('hidden');
+        selectedMaHV = '';
+        selectedHoTen = '';
+      } else {
+        nhapTenDiv.classList.add('hidden');
+        const hs = danhSachHS[parseInt(value)];
+        selectedMaHV = hs.maHV;
+        selectedHoTen = hs.hoTen;
+      }
+      
+      document.getElementById('formMon').classList.remove('hidden');
+    }
+    
+    // Đặt hàng
+    async function datHang() {
+      let hoTen = '';
+      let lop = '';
+      let maHV = '';
+      
+      if (loaiNguoiDung === 'hocsinh') {
+        lop = selectedLop;
+        
+        const tenValue = document.getElementById('selectTen').value;
+        if (tenValue === 'khongco') {
+          hoTen = document.getElementById('inputTenHS').value.trim();
+          maHV = '';
+        } else {
+          hoTen = selectedHoTen;
+          maHV = selectedMaHV;
+        }
+        
+        if (!lop) {
+          showMessage('Vui lòng chọn lớp!', 'error');
+          return;
+        }
+        if (!hoTen) {
+          showMessage('Vui lòng chọn hoặc nhập tên!', 'error');
+          return;
+        }
+      } else {
+        hoTen = document.getElementById('inputTenGV').value.trim();
+        if (!hoTen) {
+          showMessage('Vui lòng nhập tên!', 'error');
+          return;
+        }
+      }
+      
+      const mon = document.getElementById('inputMon').value.trim();
+      const soLuong = document.getElementById('selectSoLuong').value;
+      
+      if (!mon) {
+        showMessage('Vui lòng nhập tên món!', 'error');
+        return;
+      }
+      
+      const donHang = {
+        lop: lop,
+        maHV: maHV,
+        hoTen: hoTen,
+        mon: mon,
+        soLuong: parseInt(soLuong)
+      };
+      
+      const btn = document.querySelector('.btn');
+      btn.disabled = true;
+      btn.textContent = 'Đang gửi...';
+      
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain',
+          },
+          body: JSON.stringify(donHang)
+        });
+        
+        const result = await response.json();
+        
+        btn.disabled = false;
+        btn.textContent = '🛒 Đặt hàng';
+        
+        if (result.success) {
+          showMessage('✅ ' + result.message, 'success');
+          document.getElementById('inputMon').value = '';
+          document.getElementById('selectSoLuong').value = '1';
+        } else {
+          showMessage('❌ ' + result.message, 'error');
+        }
+      } catch (error) {
+        btn.disabled = false;
+        btn.textContent = '🛒 Đặt hàng';
+        showMessage('❌ Lỗi kết nối: ' + error, 'error');
+      }
+    }
+    
+    function showMessage(text, type) {
+      const msg = document.getElementById('message');
+      msg.textContent = text;
+      msg.className = 'message ' + type;
+      msg.classList.remove('hidden');
+      setTimeout(hideMessage, 5000);
+    }
+    
+    function hideMessage() {
+      document.getElementById('message').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
