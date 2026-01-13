@@ -168,19 +168,23 @@
       color: #888;
     }
     
-    .pisa-badge {
-      display: inline-block;
-      background: #3a4a9f;
-      color: white;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 11px;
+    .footer-logo {
       margin-top: 10px;
+    }
+    
+    .footer-logo img {
+      max-width: 100px;
+      height: auto;
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Logo PISA ở đầu trang -->
+    <div class="logo">
+      <img src="logo.jpg" alt="PISA Logo">
+    </div>
+    
     <div class="app-title">
       <div class="emoji">🍜🍦🥖</div>
       <h1>Đồ Ăn Vặt Uông Bí</h1>
@@ -252,15 +256,17 @@
       <button class="btn" onclick="datHang()">🛒 Đặt hàng</button>
     </div>
     
-    <!-- Footer -->
+    <!-- Footer với logo PISA -->
     <div class="footer">
       <div class="footer-text">Sản phẩm của Tổ AI & Tech</div>
-      <div class="pisa-badge">PISA EDU GROUP</div>
+      <div class="footer-logo">
+        <img src="logo.jpg" alt="PISA Logo">
+      </div>
     </div>
   </div>
 
   <script>
-    // ✅ URL API CỦA BẠN (ĐÃ THAY SẴN)
+    // ✅ URL API CỦA BẠN
     const API_URL = 'https://script.google.com/macros/s/AKfycbwWB4ssa_L5oh7ibBuPnEk6X6FcmzfhKHX0FFOdwu64e5wAaRmL2lCKx6LaUh4vMY7K/exec';
     
     let loaiNguoiDung = '';
